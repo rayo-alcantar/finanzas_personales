@@ -17,6 +17,11 @@ class MainFrame(wx.Frame):
         fileMenu.Append(addGastoItem)
         self.Bind(wx.EVT_MENU, self.onAddGasto, addGastoItem)
         
+        sumGastosItem = wx.MenuItem(fileMenu, wx.ID_ANY, '&Sumar Gastos\tCtrl+S')
+        fileMenu.Append(sumGastosItem)
+        self.Bind(wx.EVT_MENU, self.onSumGastos, sumGastosItem)
+
+
         menubar.Append(fileMenu, '&Archivo')
         self.SetMenuBar(menubar)
 
@@ -28,6 +33,16 @@ class MainFrame(wx.Frame):
         dialog = AddGastoDialog(self)
         dialog.ShowModal()
         dialog.Destroy()
+
+    def onSumGastos(self, event):
+        """
+        Maneja la acción de sumar todos los gastos desde el archivo CSV.
+        """
+        resultado = self.finanza.sumar_gastos()
+        if isinstance(resultado, float):
+            wx.MessageBox(f'Total de gastos: ${resultado:.2f}', 'Suma de Gastos', wx.OK | wx.ICON_INFORMATION)
+        else:
+            wx.MessageBox(resultado, 'Error', wx.OK | wx.ICON_ERROR)
 
 class AddGastoDialog(wx.Dialog):
     def __init__(self, parent):

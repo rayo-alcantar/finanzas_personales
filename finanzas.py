@@ -40,3 +40,23 @@ class Finanza:
         except FileNotFoundError:
             print("El archivo de gastos no existe.")
             return []
+    def sumar_gastos(self):
+        """
+        Suma todos los montos de gastos registrados en el archivo CSV.
+        Retorna la suma total o un mensaje de error en caso de problemas al leer el archivo o procesar los datos.
+        """
+        total_gastos = 0
+        try:
+            with open(self.archivo_gastos, 'r', newline='', encoding='utf-8') as archivo:
+                lector = csv.DictReader(archivo)
+                for fila in lector:
+                    try:
+                        total_gastos += float(fila['Cantidad'])
+                    except ValueError:
+                        return "Error: Uno de los valores de gastos no es un número válido."
+        except FileNotFoundError:
+            return "Error: El archivo de gastos no existe."
+        except Exception as e:
+            return f"Error: {str(e)}"  # Captura otros errores generales, como problemas de lectura del archivo.
+    
+        return total_gastos
