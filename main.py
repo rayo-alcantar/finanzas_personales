@@ -1,5 +1,7 @@
 ﻿import wx
 from finanzas import Finanza
+from editor_gastos import EditorGastos
+
 
 class MainFrame(wx.Frame):
     def __init__(self, parent, title):
@@ -20,6 +22,9 @@ class MainFrame(wx.Frame):
         sumGastosItem = wx.MenuItem(fileMenu, wx.ID_ANY, '&Sumar Gastos\tCtrl+S')
         fileMenu.Append(sumGastosItem)
         self.Bind(wx.EVT_MENU, self.onSumGastos, sumGastosItem)
+        editGastosItem = wx.MenuItem(fileMenu, wx.ID_ANY, '&Editar Archivo de Gastos\tCtrl+E')
+        fileMenu.Append(editGastosItem)
+        self.Bind(wx.EVT_MENU, self.onEditGastos, editGastosItem)
 
 
         menubar.Append(fileMenu, '&Archivo')
@@ -43,6 +48,14 @@ class MainFrame(wx.Frame):
             wx.MessageBox(f'Total de gastos: ${resultado:.2f}', 'Suma de Gastos', wx.OK | wx.ICON_INFORMATION)
         else:
             wx.MessageBox(resultado, 'Error', wx.OK | wx.ICON_ERROR)
+
+    def onEditGastos(self, event):
+        """
+        Abre la ventana de diálogo para editar los gastos registrados.
+        """
+        dialog = EditorGastos(self)
+        dialog.ShowModal()
+        dialog.Destroy()
 
 class AddGastoDialog(wx.Dialog):
     def __init__(self, parent):
