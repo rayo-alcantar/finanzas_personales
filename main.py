@@ -524,16 +524,25 @@ class ImportDialog(wx.Dialog):
 
         # Crear elementos de la GUI
         self.choiceType = wx.Choice(self.panel, choices=["Ingresos", "Gastos"])
-        self.importBtn = wx.Button(self.panel, label="Importar")
-        self.cancelBtn = wx.Button(self.panel, label="Cancelar")
+        self.importBtn = wx.Button(self.panel, label="&Importar")
+        self.cancelBtn = wx.Button(self.panel, label="&Cancelar")
         
-        # Layout
+        # Configurar el layout usando wx.BoxSizer
         sizer = wx.BoxSizer(wx.VERTICAL)
+        
+        # Añadir elementos al sizer
         sizer.Add(self.choiceType, 0, wx.ALL | wx.EXPAND, 5)
+        self.choiceType.SetSelection(0)  # Establece la selección inicial en el primer ítem
+        
         sizer.Add(self.importBtn, 0, wx.ALL | wx.EXPAND, 5)
         sizer.Add(self.cancelBtn, 0, wx.ALL | wx.EXPAND, 5)
+        
+        # Configura el sizer en el panel para usar el layout definido
         self.panel.SetSizer(sizer)
         
+        # Vincula los eventos a los botones
+        self.importBtn.Bind(wx.EVT_BUTTON, self.onImport)
+        self.cancelBtn.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
         # Eventos
         self.importBtn.Bind(wx.EVT_BUTTON, self.onImport)
         self.cancelBtn.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
