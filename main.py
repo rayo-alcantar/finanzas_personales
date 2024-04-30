@@ -38,6 +38,12 @@ class MainFrame(wx.Frame):
         archivoMenu.Append(exportItem)
         self.Bind(wx.EVT_MENU, self.onExportData, exportItem)
 
+
+        importItem = wx.MenuItem(archivoMenu, wx.ID_ANY, '&Importar Datos\tCtrl+Y')
+        archivoMenu.Append(importItem)
+        self.Bind(wx.EVT_MENU, self.onImportData, importItem)
+
+
         menubar.Append(archivoMenu, '&Archivo')
 
         # Menú Gastos
@@ -164,6 +170,13 @@ class MainFrame(wx.Frame):
         dialog.ShowModal()
         dialog.Destroy()
 
+    def onImportData(self, event):
+        """
+        Abre el diálogo para importar datos de ingresos y gastos.
+        """
+        dialog = ImportDialog(self)
+        dialog.ShowModal()
+        dialog.Destroy()
 
 #clase para gestionar los gastos (gui).
 class AddGastoDialog(wx.Dialog):
@@ -487,5 +500,65 @@ def main():
     MainFrame(None, title='Finanzas Personales')
     app.MainLoop()
 
+class ImportDialog(wx.Dialog):
+    def __init__(self, parent):
+        super(ImportDialog, self).__init__(parent, title='Importar Datos', size=(400, 300))
+        self.panel = wx.Panel(self)
+
+        # Crear elementos de la GUI
+        self.choiceType = wx.Choice(self.panel, choices=["Ingresos", "Gastos"])
+        self.importBtn = wx.Button(self.panel, label="Importar")
+        self.cancelBtn = wx.Button(self.panel, label="Cancelar")
+        
+        # Layout
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.choiceType, 0, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(self.importBtn, 0, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(self.cancelBtn, 0, wx.ALL | wx.EXPAND, 5)
+        self.panel.SetSizer(sizer)
+        
+        # Eventos
+        self.importBtn.Bind(wx.EVT_BUTTON, self.onImport)
+        self.cancelBtn.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
+
+    def onImport(self, event):
+        # Abrir diálogo para seleccionar el archivo
+        with wx.FileDialog(self, "Importar archivo", wildcard="Excel files (*.xlsx)|*.xlsx|JSON files (*.json)|*.json|XML files (*.xml)|*.xml",
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return  # Cancelado por el usuario
+            
+            # Procesar el archivo seleccionado
+            filepath = fileDialog.GetPath()
+            data_type = self.choiceType.GetString(self.choiceType.GetSelection()).lower()
+            try:
+                if filepath.endswith('.xlsx'):
+                    df = pd.read_excel(filepath)
+                elif filepath.endswith('.json'):
+                    with open(filepath, 'r') as file:
+                        data = json.load(file)
+                        df = pd.DataFrame(data)
+                elif filepath.endswith('.xml'):
+                    tree = ET.parse(filepath)
+                    root = tree.getroot()
+                    data = [{child.tag: child.text for child in elem} for elem in root]
+                    df = pd.DataFrame(data)
+                
+                # Validar que las columnas necesarias están en el dataframe
+                required_columns = ['Nombre del Ingreso', 'Cantidad'] if data_type == 'ingresos' else ['Nombre del Gasto', 'Cantidad']
+                if all(col in df.columns for col in required_columns):
+                    self.save_data(df, data_type)
+                else:
+                    wx.MessageBox(f'El archivo no contiene las columnas requeridas.', 'Error', wx.OK | wx.ICON_ERROR)
+            except Exception as e:
+                wx.MessageBox(f'Error al importar datos: {str(e)}', 'Error', wx.OK | wx.ICON_ERROR)
+    
+    def save_data(self, df, data_type):
+        filename = self.GetParent().finanza.archivo_ingresos if data_type == 'ingresos' else self.GetParent().finanza.archivo_gastos
+        
+        # Verificar si el archivo ya existe para decidir si añadir el encabezado
+        header = not os.path.isfile(filename)
+        df.to_csv(filename, mode='a', index=False, header=header)
+        wx.MessageBox(f'Datos de {data_type} importados correctamente en {filename}.', 'Importación Exitosa', wx.OK | wx.ICON_INFORMATION)
 if __name__ == '__main__':
     main()
