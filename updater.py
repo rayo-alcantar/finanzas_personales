@@ -1,7 +1,7 @@
-#updater
 import requests
 import webbrowser
 import wx
+from packaging import version
 
 class GithubUpdater:
     def __init__(self, repo):
@@ -25,7 +25,8 @@ class GithubUpdater:
         if latest_version is None:
             return None  # Si no se pudo obtener la versión, no hacer nada
 
-        if latest_version != f"v{current_version}":
+        # Usa 'packaging.version.parse' para hacer la comparación
+        if version.parse(latest_version) > version.parse(current_version):
             return latest_version
         return None
 
@@ -51,4 +52,3 @@ class GithubUpdater:
         """Abre el navegador para que el usuario pueda descargar la versión más reciente."""
         download_url = f"https://github.com/{self.repo}/releases/tag/{version_tag}"
         webbrowser.open(download_url)
-
