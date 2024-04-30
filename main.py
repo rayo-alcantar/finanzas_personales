@@ -13,21 +13,29 @@ class MainFrame(wx.Frame):
         self.CreateStatusBar()
 
         menubar = wx.MenuBar()
-        fileMenu = wx.Menu()
         
-        addGastoItem = wx.MenuItem(fileMenu, wx.ID_ANY, '&Añadir Gasto\tCtrl+A')
-        fileMenu.Append(addGastoItem)
+        # Menú Archivo
+        archivoMenu = wx.Menu()
+        balanceItem = wx.MenuItem(archivoMenu, wx.ID_ANY, '&Calcular Balance\tCtrl+B')
+        archivoMenu.Append(balanceItem)
+        self.Bind(wx.EVT_MENU, self.onCalculateBalance, balanceItem)
+        menubar.Append(archivoMenu, '&Archivo')
+
+        # Menú Gastos
+        gastosMenu = wx.Menu()
+        addGastoItem = wx.MenuItem(gastosMenu, wx.ID_ANY, '&Añadir Gasto\tCtrl+A')
+        gastosMenu.Append(addGastoItem)
         self.Bind(wx.EVT_MENU, self.onAddGasto, addGastoItem)
         
-        sumGastosItem = wx.MenuItem(fileMenu, wx.ID_ANY, '&Sumar Gastos\tCtrl+S')
-        fileMenu.Append(sumGastosItem)
+        sumGastosItem = wx.MenuItem(gastosMenu, wx.ID_ANY, '&Sumar Gastos\tCtrl+S')
+        gastosMenu.Append(sumGastosItem)
         self.Bind(wx.EVT_MENU, self.onSumGastos, sumGastosItem)
-        editGastosItem = wx.MenuItem(fileMenu, wx.ID_ANY, '&Editar Archivo de Gastos\tCtrl+E')
-        fileMenu.Append(editGastosItem)
+        editGastosItem = wx.MenuItem(gastosMenu, wx.ID_ANY, '&Editar Archivo de Gastos\tCtrl+E')
+        gastosMenu.Append(editGastosItem)
         self.Bind(wx.EVT_MENU, self.onEditGastos, editGastosItem)
+        menubar.Append(gastosMenu, '&Gastos')
 
-
-        menubar.Append(fileMenu, '&Gastos')
+        # Menú Ingresos
         ingresosMenu = wx.Menu()
         addIngresoItem = wx.MenuItem(ingresosMenu, wx.ID_ANY, '&Añadir Ingreso\tCtrl+I')
         ingresosMenu.Append(addIngresoItem)
@@ -39,11 +47,9 @@ class MainFrame(wx.Frame):
         
         editIngresosItem = wx.MenuItem(ingresosMenu, wx.ID_ANY, '&Editar Archivo de Ingresos\tCtrl+G')
         ingresosMenu.Append(editIngresosItem)
-        self.Bind(wx.EVT_MENU, self.onEditIngresos, editIngresosItem)
-        
         menubar.Append(ingresosMenu, '&Ingresos')
-        self.SetMenuBar(menubar)
 
+        self.SetMenuBar(menubar)
         self.Show(True)
     def onAddGasto(self, event):
         """
@@ -95,6 +101,19 @@ class MainFrame(wx.Frame):
         dialog = EditIngresosDialog(self)
         dialog.ShowModal()
         dialog.Destroy()
+
+    def onCalculateBalance(self, event):
+        """
+        Calcula y muestra el balance financiero (ingresos menos gastos).
+        """
+        total_ingresos = self.finanza.sumar_ingresos()
+        total_gastos = self.finanza.sumar_gastos()
+
+        if isinstance(total_ingresos, float) and isinstance(total_gastos, float):
+            balance = total_ingresos - total_gastos
+            wx.MessageBox(f'Balance Actual: ${balance:.2f}', 'Balance Financiero', wx.OK | wx.ICON_INFORMATION)
+        else:
+            wx.MessageBox('Error al calcular el balance. Verifique los datos.', 'Error', wx.OK | wx.ICON_ERROR)
 
 class AddGastoDialog(wx.Dialog):
     def __init__(self, parent):
