@@ -64,8 +64,9 @@ class MainFrame(wx.Frame):
         ingresosMenu.Append(sumIngresosItem)
         self.Bind(wx.EVT_MENU, self.onSumIngresos, sumIngresosItem)
         
-        editIngresosItem = wx.MenuItem(ingresosMenu, wx.ID_ANY, '&Editar Archivo de Ingresos\tCtrl+G')
+        editIngresosItem = wx.MenuItem(ingresosMenu, wx.ID_ANY, '&Editar Archivo de Ingresos\tCtrl+H')
         ingresosMenu.Append(editIngresosItem)
+        self.Bind(wx.EVT_MENU, self.onEditIngresos, editIngresosItem)
         menubar.Append(ingresosMenu, '&Ingresos')
 
         self.SetMenuBar(menubar)
@@ -121,6 +122,7 @@ class MainFrame(wx.Frame):
         """
         Abre la ventana de diálogo para editar los ingresos registrados.
         """
+        print("depuración")
         dialog = EditIngresosDialog(self)
         dialog.ShowModal()
         dialog.Destroy()
