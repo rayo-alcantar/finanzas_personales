@@ -1,8 +1,13 @@
 ﻿#se hacen importaciones
 import wx
+from wx import FileDialog, FD_SAVE, FD_OVERWRITE_PROMPT
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+import json
+import xml.etree.ElementTree as ET
+import pandas as pd
+import os
 
 from finanzas import Finanza
 from editor_gastos import EditorGastos
@@ -24,10 +29,13 @@ class MainFrame(wx.Frame):
         balanceItem = wx.MenuItem(archivoMenu, wx.ID_ANY, '&Calcular Balance\tCtrl+B')
         archivoMenu.Append(balanceItem)
         self.Bind(wx.EVT_MENU, self.onCalculateBalance, balanceItem)
-
         visualizeBalanceItem = wx.MenuItem(archivoMenu, wx.ID_ANY, '&Visualizar el Balance en un Gráfico\tCtrl+G')
         archivoMenu.Append(visualizeBalanceItem)
         self.Bind(wx.EVT_MENU, self.onVisualizeBalance, visualizeBalanceItem)
+
+        exportItem = wx.MenuItem(archivoMenu, wx.ID_ANY, '&Exportar Datos\tCtrl+E')
+        archivoMenu.Append(exportItem)
+        self.Bind(wx.EVT_MENU, self.onExportData, exportItem)
 
         menubar.Append(archivoMenu, '&Archivo')
 
@@ -145,6 +153,13 @@ class MainFrame(wx.Frame):
         else:
             wx.MessageBox('Error al calcular el balance. Verifique los datos.', 'Error', wx.OK | wx.ICON_ERROR)
 
+    def onExportData(self, event):
+        """
+        Abre el diálogo para exportar datos de ingresos y gastos.
+        """
+        dialog = ExportDialog(self)
+        dialog.ShowModal()
+        dialog.Destroy()
 
 
 #clase para gestionar los gastos (gui).
@@ -381,6 +396,93 @@ class BalanceGraphDialog(wx.Dialog):
         self.axes.set_ylabel('Cantidad ($)')
         self.axes.set_ylim(min(balance - 10, 0), max(balance + 10, 0))  # Ajustar para mostrar la barra claramente
         self.canvas.draw()
+
+
+#clase para exportar datos.
+class ExportDialog(wx.Dialog):
+    def __init__(self, parent):
+        super(ExportDialog, self).__init__(parent, title='Exportar Datos', size=(400, 300))
+        self.panel = wx.Panel(self)
+
+        self.chkGastos = wx.CheckBox(self.panel, label="Gastos")
+        self.chkIngresos = wx.CheckBox(self.panel, label="Ingresos")
+        self.comboFormat = wx.ComboBox(self.panel, choices=["Excel", "JSON", "XML"], style=wx.CB_READONLY)
+        self.comboFormat.SetSelection(0)  # Default to Excel
+
+        exportBtn = wx.Button(self.panel, label="Exportar")
+        cancelBtn = wx.Button(self.panel, label="Cancelar")
+        exportBtn.Bind(wx.EVT_BUTTON, self.onExport)
+        cancelBtn.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.chkGastos, flag=wx.ALL, border=5)
+        sizer.Add(self.chkIngresos, flag=wx.ALL, border=5)
+        sizer.Add(self.comboFormat, flag=wx.ALL, border=5)
+        sizer.Add(exportBtn, flag=wx.ALL, border=5)
+        sizer.Add(cancelBtn, flag=wx.ALL, border=5)
+        self.panel.SetSizer(sizer)
+
+    def onExport(self, event):
+        """
+        Handle the export process based on selected options.
+        """
+        if self.chkGastos.GetValue() or self.chkIngresos.GetValue():
+            format = self.comboFormat.GetValue().lower()
+            with FileDialog(self, "Save file", wildcard=self.get_wildcard(format),
+                            style=FD_SAVE | FD_OVERWRITE_PROMPT) as fileDialog:
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return
+                pathname = fileDialog.GetPath()
+                try:
+                    self.export_data(format, pathname)
+                except Exception as e:
+                    wx.LogError(f"Cannot save current data in file '{pathname}'.\n{str(e)}")
+                    return
+            wx.MessageBox("Exportación completada", "Exportar Datos", wx.OK | wx.ICON_INFORMATION)
+        else:
+            wx.MessageBox("Por favor, seleccione al menos un tipo de dato para exportar.", "Error", wx.OK | wx.ICON_ERROR)
+
+    def get_wildcard(self, format):
+        """
+        Returns the file dialog wildcard string based on format.
+        """
+        if format == 'excel':
+            return "Excel files (*.xlsx)|*.xlsx"
+        elif format == 'json':
+            return "JSON files (*.json)|*.json"
+        elif format == 'xml':
+            return "XML files (*.xml)|*.xml"
+
+    def export_data(self, format, filename):
+        """
+        Exports the data in the selected format.
+        """
+        if self.chkGastos.GetValue():
+            gastos = self.GetParent().finanza.exportar_gastos()
+        if self.chkIngresos.GetValue():
+            ingresos = self.GetParent().finanza.exportar_ingresos()
+
+        if format == 'excel':
+            with pd.ExcelWriter(filename) as writer:
+                if self.chkGastos.GetValue():
+                    gastos.to_excel(writer, sheet_name='Gastos')
+                if self.chkIngresos.GetValue():
+                    ingresos.to_excel(writer, sheet_name='Ingresos')
+        elif format == 'json':
+            with open(filename, 'w') as file:
+                json.dump({'gastos': gastos, 'ingresos': ingresos}, file)
+        elif format == 'xml':
+            root = ET.Element("Data")
+            if self.chkGastos.GetValue():
+                gastos_xml = ET.SubElement(root, "Gastos")
+                for index, row in gastos.iterrows():
+                    ET.SubElement(gastos_xml, "Gasto", row.to_dict())
+            if self.chkIngresos.GetValue():
+                ingresos_xml = ET.SubElement(root, "Ingresos")
+                for index, row in ingresos.iterrows():
+                    ET.SubElement(ingresos_xml, "Ingreso", row.to_dict())
+            tree = ET.ElementTree(root)
+            tree.write(filename)
 
 
 def main():

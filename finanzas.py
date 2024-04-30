@@ -1,4 +1,5 @@
-﻿import csv
+﻿import pandas as pd
+import csv
 import os
 
 class Finanza:
@@ -118,3 +119,26 @@ class Finanza:
     
         return total_ingresos
     
+    def exportar_gastos(self):
+        """
+        Exporta los gastos como DataFrame de pandas.
+        """
+        try:
+            with open(self.archivo_gastos, 'r', newline='', encoding='utf-8') as archivo:
+                df = pd.read_csv(archivo)
+            return df
+        except FileNotFoundError:
+            print("El archivo de gastos no existe.")
+            return pd.DataFrame()  # Retorna un DataFrame vacío si el archivo no existe
+
+    def exportar_ingresos(self):
+        """
+        Exporta los ingresos como DataFrame de pandas.
+        """
+        try:
+            with open(self.archivo_ingresos, 'r', newline='', encoding='utf-8') as archivo:
+                df = pd.read_csv(archivo)
+            return df
+        except FileNotFoundError:
+            print("El archivo de ingresos no existe.")
+            return pd.DataFrame()  # Retorna un DataFrame vacío si el archivo no existe
