@@ -19,7 +19,7 @@ from updater import GithubUpdater
 class MainFrame(wx.Frame):
     def __init__(self, parent, title):
         super(MainFrame, self).__init__(parent, title=title, size=(800, 600))
-        self.version = "0.2"
+        self.version = "0.3"
         self.finanza = Finanza()  # Crear una instancia de Finanza aquí
         self.initUI()
         self.initUpdater()
