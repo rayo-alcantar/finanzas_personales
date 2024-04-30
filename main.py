@@ -1,5 +1,9 @@
 ﻿#se hacen importaciones
 import wx
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+
 from finanzas import Finanza
 from editor_gastos import EditorGastos
 
@@ -20,6 +24,11 @@ class MainFrame(wx.Frame):
         balanceItem = wx.MenuItem(archivoMenu, wx.ID_ANY, '&Calcular Balance\tCtrl+B')
         archivoMenu.Append(balanceItem)
         self.Bind(wx.EVT_MENU, self.onCalculateBalance, balanceItem)
+
+        visualizeBalanceItem = wx.MenuItem(archivoMenu, wx.ID_ANY, '&Visualizar el Balance en un Gráfico\tCtrl+G')
+        archivoMenu.Append(visualizeBalanceItem)
+        self.Bind(wx.EVT_MENU, self.onVisualizeBalance, visualizeBalanceItem)
+
         menubar.Append(archivoMenu, '&Archivo')
 
         # Menú Gastos
@@ -119,6 +128,25 @@ class MainFrame(wx.Frame):
             wx.MessageBox(f'Balance Actual: ${balance:.2f}', 'Balance Financiero', wx.OK | wx.ICON_INFORMATION)
         else:
             wx.MessageBox('Error al calcular el balance. Verifique los datos.', 'Error', wx.OK | wx.ICON_ERROR)
+    def onVisualizeBalance(self, event):
+        """
+        Visualiza el balance financiero (ingresos menos gastos) en un gráfico.
+        """
+        total_ingresos = self.finanza.sumar_ingresos()
+        total_gastos = self.finanza.sumar_gastos()
+
+        if isinstance(total_ingresos, float) and isinstance(total_gastos, float):
+            balance = total_ingresos - total_gastos
+            
+            # Crear y mostrar el gráfico
+            dlg = BalanceGraphDialog(self, balance)
+            dlg.ShowModal()
+            dlg.Destroy()
+        else:
+            wx.MessageBox('Error al calcular el balance. Verifique los datos.', 'Error', wx.OK | wx.ICON_ERROR)
+
+
+
 #clase para gestionar los gastos (gui).
 class AddGastoDialog(wx.Dialog):
     def __init__(self, parent):
@@ -324,6 +352,35 @@ class AddIngresoDialog(wx.Dialog):
         Cierra el diálogo sin realizar cambios.
         """
         self.Close()
+
+#Clase para dibujar el gráfico
+class BalanceGraphDialog(wx.Dialog):
+    def __init__(self, parent, balance):
+        super(BalanceGraphDialog, self).__init__(parent, title='Gráfico de Balance', size=(400, 300))
+        
+        self.panel = wx.Panel(self)
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.panel, -1, self.figure)
+        self.axes = self.figure.add_subplot(111)
+
+        self.draw_balance_graph(balance)
+        
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.EXPAND)
+        self.panel.SetSizer(sizer)
+        self.Layout()
+
+    def draw_balance_graph(self, balance):
+        """
+        Dibuja el gráfico de balance, coloreado según el valor.
+        """
+        colors = 'red' if balance < 0 else 'green'
+        self.axes.clear()
+        self.axes.bar(['Balance'], [balance], color=colors)
+        self.axes.set_title('Balance Financiero')
+        self.axes.set_ylabel('Cantidad ($)')
+        self.axes.set_ylim(min(balance - 10, 0), max(balance + 10, 0))  # Ajustar para mostrar la barra claramente
+        self.canvas.draw()
 
 
 def main():
