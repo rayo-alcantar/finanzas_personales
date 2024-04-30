@@ -1,8 +1,9 @@
-﻿import wx
+﻿#se hacen importaciones
+import wx
 from finanzas import Finanza
 from editor_gastos import EditorGastos
 
-
+#clase donde manejamos la gui.
 class MainFrame(wx.Frame):
     def __init__(self, parent, title):
         super(MainFrame, self).__init__(parent, title=title, size=(800, 600))
@@ -11,7 +12,7 @@ class MainFrame(wx.Frame):
 
     def initUI(self):
         self.CreateStatusBar()
-
+#Creamos los menús.
         menubar = wx.MenuBar()
         
         # Menú Archivo
@@ -51,6 +52,8 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(menubar)
         self.Show(True)
+        
+#métodos para manejar los gastos
     def onAddGasto(self, event):
         """
         Abre la ventana de diálogo para añadir un nuevo gasto.
@@ -76,6 +79,8 @@ class MainFrame(wx.Frame):
         dialog = EditorGastos(self)
         dialog.ShowModal()
         dialog.Destroy()
+        
+        #métodos para manejar los ingresos.
     def onAddIngreso(self, event):
         """
         Abre la ventana de diálogo para añadir un nuevo ingreso.
@@ -101,7 +106,7 @@ class MainFrame(wx.Frame):
         dialog = EditIngresosDialog(self)
         dialog.ShowModal()
         dialog.Destroy()
-
+#método para calcular el balance (suma de ingresos - suma de gastos.)
     def onCalculateBalance(self, event):
         """
         Calcula y muestra el balance financiero (ingresos menos gastos).
@@ -114,7 +119,7 @@ class MainFrame(wx.Frame):
             wx.MessageBox(f'Balance Actual: ${balance:.2f}', 'Balance Financiero', wx.OK | wx.ICON_INFORMATION)
         else:
             wx.MessageBox('Error al calcular el balance. Verifique los datos.', 'Error', wx.OK | wx.ICON_ERROR)
-
+#clase para gestionar los gastos (gui).
 class AddGastoDialog(wx.Dialog):
     def __init__(self, parent):
         super(AddGastoDialog, self).__init__(parent, title='Añadir Gasto', size=(350, 200))
