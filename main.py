@@ -12,13 +12,18 @@ from wx import FD_OVERWRITE_PROMPT, FD_SAVE, FileDialog
 
 from editor_gastos import EditorGastos
 from finanzas import Finanza
+from updater import GithubUpdater
+
 
 #clase donde manejamos la gui.
 class MainFrame(wx.Frame):
     def __init__(self, parent, title):
         super(MainFrame, self).__init__(parent, title=title, size=(800, 600))
+        self.version = "0.2"
         self.finanza = Finanza()  # Crear una instancia de Finanza aquí
         self.initUI()
+        self.initUpdater()
+        
 
     def initUI(self):
         self.CreateStatusBar()
@@ -77,7 +82,10 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(menubar)
         self.Show(True)
-        
+    def initUpdater(self):
+        # Inicializar y comprobar actualizaciones automáticamente después de que la GUI esté lista
+        self.updater = GithubUpdater("rayo-alcantar/finanzas_personales")
+        self.updater.prompt_update_if_needed(self.version)
 #métodos para manejar los gastos
     def onAddGasto(self, event):
         """
@@ -582,5 +590,6 @@ class ImportDialog(wx.Dialog):
         header = not os.path.isfile(filename)
         df.to_csv(filename, mode='a', index=False, header=header)
         wx.MessageBox(f'Datos de {data_type} importados correctamente en {filename}.', 'Importación Exitosa', wx.OK | wx.ICON_INFORMATION)
+
 if __name__ == '__main__':
     main()
