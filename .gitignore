@@ -1,6 +1,11 @@
 ﻿__pycache__/
 *.pyc
 
+# PyInstaller
+build/
+dist/
+*.spec
+
 # Ignorar archivos CVV/CCV
 
 *.csv
