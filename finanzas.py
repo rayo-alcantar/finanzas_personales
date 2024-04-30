@@ -97,7 +97,19 @@ class Finanza:
         except FileNotFoundError:
             print("El archivo de ingresos no existe.")
             return []
-    
+
+    def borrar_ingreso(self, index):
+        """
+        Elimina un ingreso en el archivo CSV basado en el índice.
+        """
+        ingresos = self.leer_ingresos()
+        if ingresos and 0 <= index < len(ingresos):
+            del ingresos[index]
+            with open(self.archivo_ingresos, 'w', newline='', encoding='utf-8') as archivo:
+                escritor = csv.DictWriter(archivo, fieldnames=['Nombre del Ingreso', 'Cantidad'])
+                escritor.writeheader()
+                escritor.writerows(ingresos)
+            print("Ingreso eliminado correctamente.")
     def sumar_ingresos(self):
         """
         Suma todos los montos de ingresos registrados en el archivo CSV.

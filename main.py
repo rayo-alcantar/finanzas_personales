@@ -242,11 +242,17 @@ class EditIngresosDialog(wx.Dialog):
         self.loadIngresos()
         self.layout.Add(self.listBox, proportion=1, flag=wx.EXPAND | wx.ALL, border=10)
 
-        # Los botones también deben tener self.panel como padre
+        # Botón de editar
         editButton = wx.Button(self.panel, label='&Editar Seleccionado')
         editButton.Bind(wx.EVT_BUTTON, self.onEdit)
         self.layout.Add(editButton, flag=wx.LEFT | wx.BOTTOM, border=10)
 
+        # Botón de borrar
+        deleteButton = wx.Button(self.panel, label='&Borrar Seleccionado')
+        deleteButton.Bind(wx.EVT_BUTTON, self.onDelete)
+        self.layout.Add(deleteButton, flag=wx.LEFT | wx.BOTTOM, border=10)
+
+        # Botón de cerrar
         closeButton = wx.Button(self.panel, label='&Cerrar')
         closeButton.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
         self.layout.Add(closeButton, flag=wx.LEFT | wx.BOTTOM, border=10)
@@ -274,6 +280,17 @@ class EditIngresosDialog(wx.Dialog):
             dialog.ShowModal()
             dialog.Destroy()
             self.loadIngresos()
+
+    def onDelete(self, event):
+        """
+        Elimina el ingreso seleccionado a partir de la selección en el ListBox.
+        """
+        selection = self.listBox.GetSelection()
+        if selection != wx.NOT_FOUND:
+            # Confirmar antes de borrar
+            if wx.MessageBox("¿Estás seguro de que deseas borrar este ingreso?", "Confirmar", wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION) == wx.YES:
+                self.GetParent().finanza.borrar_ingreso(selection)
+                self.loadIngresos()
 
 class EditSingleIngresoDialog(wx.Dialog):
     """
