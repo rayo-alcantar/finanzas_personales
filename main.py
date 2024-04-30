@@ -403,14 +403,14 @@ class ExportDialog(wx.Dialog):
     def __init__(self, parent):
         super(ExportDialog, self).__init__(parent, title='Exportar Datos', size=(400, 300))
         self.panel = wx.Panel(self)
-
+        
         self.chkGastos = wx.CheckBox(self.panel, label="Gastos")
         self.chkIngresos = wx.CheckBox(self.panel, label="Ingresos")
         self.comboFormat = wx.ComboBox(self.panel, choices=["Excel", "JSON", "XML"], style=wx.CB_READONLY)
         self.comboFormat.SetSelection(0)  # Default to Excel
 
-        exportBtn = wx.Button(self.panel, label="Exportar")
-        cancelBtn = wx.Button(self.panel, label="Cancelar")
+        exportBtn = wx.Button(self.panel, label="&Exportar")
+        cancelBtn = wx.Button(self.panel, label="&Cancelar")
         exportBtn.Bind(wx.EVT_BUTTON, self.onExport)
         cancelBtn.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
 
@@ -421,46 +421,37 @@ class ExportDialog(wx.Dialog):
         sizer.Add(exportBtn, flag=wx.ALL, border=5)
         sizer.Add(cancelBtn, flag=wx.ALL, border=5)
         self.panel.SetSizer(sizer)
-
+    
     def onExport(self, event):
-        """
-        Handle the export process based on selected options.
-        """
-        if self.chkGastos.GetValue() or self.chkIngresos.GetValue():
-            format = self.comboFormat.GetValue().lower()
-            with FileDialog(self, "Save file", wildcard=self.get_wildcard(format),
-                            style=FD_SAVE | FD_OVERWRITE_PROMPT) as fileDialog:
-                if fileDialog.ShowModal() == wx.ID_CANCEL:
-                    return
-                pathname = fileDialog.GetPath()
-                try:
-                    self.export_data(format, pathname)
-                except Exception as e:
-                    wx.LogError(f"Cannot save current data in file '{pathname}'.\n{str(e)}")
-                    return
-            wx.MessageBox("Exportación completada", "Exportar Datos", wx.OK | wx.ICON_INFORMATION)
-        else:
-            wx.MessageBox("Por favor, seleccione al menos un tipo de dato para exportar.", "Error", wx.OK | wx.ICON_ERROR)
-
-    def get_wildcard(self, format):
-        """
-        Returns the file dialog wildcard string based on format.
-        """
+        format = self.comboFormat.GetValue().lower()  # Get selected format and convert to lower case
         if format == 'excel':
-            return "Excel files (*.xlsx)|*.xlsx"
+            extension = '.xlsx'
         elif format == 'json':
-            return "JSON files (*.json)|*.json"
+            extension = '.json'
         elif format == 'xml':
-            return "XML files (*.xml)|*.xml"
+            extension = '.xml'
+        else:
+            wx.MessageBox('Formato no soportado.', 'Error', wx.OK | wx.ICON_ERROR)
+            return
+        
+        with wx.FileDialog(self, "Guardar como", wildcard="*{}".format(extension),
+                           style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return  # User cancelled the operation
+
+            pathname = fileDialog.GetPath()
+            try:
+                self.export_data(format, pathname)
+                wx.MessageBox('Datos exportados correctamente.', 'Exportar Datos', wx.OK | wx.ICON_INFORMATION)
+            except Exception as e:
+                wx.MessageBox(f'Failed to save file!\n{str(e)}', 'Error', wx.OK | wx.ICON_ERROR)
 
     def export_data(self, format, filename):
-        """
-        Exports the data in the selected format.
-        """
+        finanza = self.GetParent().finanza
         if self.chkGastos.GetValue():
-            gastos = self.GetParent().finanza.exportar_gastos()
+            gastos = finanza.exportar_gastos()
         if self.chkIngresos.GetValue():
-            ingresos = self.GetParent().finanza.exportar_ingresos()
+            ingresos = finanza.exportar_ingresos()
 
         if format == 'excel':
             with pd.ExcelWriter(filename) as writer:
@@ -470,20 +461,23 @@ class ExportDialog(wx.Dialog):
                     ingresos.to_excel(writer, sheet_name='Ingresos')
         elif format == 'json':
             with open(filename, 'w') as file:
-                json.dump({'gastos': gastos, 'ingresos': ingresos}, file)
+                json.dump({'gastos': gastos.to_dict(orient='records'), 'ingresos': ingresos.to_dict(orient='records')}, file)
         elif format == 'xml':
             root = ET.Element("Data")
             if self.chkGastos.GetValue():
                 gastos_xml = ET.SubElement(root, "Gastos")
-                for index, row in gastos.iterrows():
-                    ET.SubElement(gastos_xml, "Gasto", row.to_dict())
+                for _, row in gastos.iterrows():
+                    gasto_element = ET.SubElement(gastos_xml, "Gasto")
+                    for col, val in row.items():
+                        ET.SubElement(gasto_element, col).text = str(val)
             if self.chkIngresos.GetValue():
                 ingresos_xml = ET.SubElement(root, "Ingresos")
-                for index, row in ingresos.iterrows():
-                    ET.SubElement(ingresos_xml, "Ingreso", row.to_dict())
+                for _, row in ingresos.iterrows():
+                    ingreso_element = ET.SubElement(ingresos_xml, "Ingreso")
+                    for col, val in row.items():
+                        ET.SubElement(ingreso_element, col).text = str(val)
             tree = ET.ElementTree(root)
             tree.write(filename)
-
 
 def main():
     app = wx.App()
