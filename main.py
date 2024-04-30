@@ -23,7 +23,13 @@ class MainFrame(wx.Frame):
         self.finanza = Finanza()  # Crear una instancia de Finanza aquí
         self.initUI()
         self.initUpdater()
-        
+        self.Bind(wx.EVT_CLOSE, self.onClose)
+
+    def onClose(self, event):
+        # Destruye todos los diálogos abiertos o finaliza procesos
+        self.Destroy()
+        wx.Exit
+        exit(0)
 
     def initUI(self):
         self.CreateStatusBar()
