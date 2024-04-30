@@ -437,26 +437,32 @@ class ExportDialog(wx.Dialog):
         super(ExportDialog, self).__init__(parent, title='Exportar Datos', size=(400, 300))
         self.panel = wx.Panel(self)
         
-        self.chkGastos = wx.CheckBox(self.panel, label="Gastos")
-        self.chkIngresos = wx.CheckBox(self.panel, label="Ingresos")
+        # ComboBox para elegir entre exportar Gastos o Ingresos
+        self.choiceType = wx.Choice(self.panel, choices=["Gastos", "Ingresos"])
+        self.choiceType.SetSelection(0)  # Seleccionar el primer ítem por defecto
+        
+        # ComboBox para seleccionar el formato de exportación
         self.comboFormat = wx.ComboBox(self.panel, choices=["Excel", "JSON", "XML"], style=wx.CB_READONLY)
         self.comboFormat.SetSelection(0)  # Default to Excel
-
+        
+        # Botones de acción
         exportBtn = wx.Button(self.panel, label="&Exportar")
         cancelBtn = wx.Button(self.panel, label="&Cancelar")
         exportBtn.Bind(wx.EVT_BUTTON, self.onExport)
         cancelBtn.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
 
+        # Configurar el layout
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.chkGastos, flag=wx.ALL, border=5)
-        sizer.Add(self.chkIngresos, flag=wx.ALL, border=5)
-        sizer.Add(self.comboFormat, flag=wx.ALL, border=5)
-        sizer.Add(exportBtn, flag=wx.ALL, border=5)
-        sizer.Add(cancelBtn, flag=wx.ALL, border=5)
+        sizer.Add(self.choiceType, 0, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(self.comboFormat, 0, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(exportBtn, 0, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(cancelBtn, 0, wx.ALL | wx.EXPAND, 5)
         self.panel.SetSizer(sizer)
     
     def onExport(self, event):
+        export_type = self.choiceType.GetString(self.choiceType.GetSelection()).lower()
         format = self.comboFormat.GetValue().lower()  # Get selected format and convert to lower case
+        
         if format == 'excel':
             extension = '.xlsx'
         elif format == 'json':
@@ -474,49 +480,39 @@ class ExportDialog(wx.Dialog):
 
             pathname = fileDialog.GetPath()
             try:
-                self.export_data(format, pathname)
+                self.export_data(format, export_type, pathname)
                 wx.MessageBox('Datos exportados correctamente.', 'Exportar Datos', wx.OK | wx.ICON_INFORMATION)
             except Exception as e:
                 wx.MessageBox(f'Failed to save file!\n{str(e)}', 'Error', wx.OK | wx.ICON_ERROR)
 
-    def export_data(self, format, filename):
+    def export_data(self, format, export_type, filename):
         finanza = self.GetParent().finanza
-        if self.chkGastos.GetValue():
-            gastos = finanza.exportar_gastos()
-        if self.chkIngresos.GetValue():
-            ingresos = finanza.exportar_ingresos()
+        data = finanza.exportar_gastos() if export_type == 'gastos' else finanza.exportar_ingresos()
 
         if format == 'excel':
             with pd.ExcelWriter(filename) as writer:
-                if self.chkGastos.GetValue():
-                    gastos.to_excel(writer, sheet_name='Gastos')
-                if self.chkIngresos.GetValue():
-                    ingresos.to_excel(writer, sheet_name='Ingresos')
+                data.to_excel(writer, sheet_name=export_type.title())
         elif format == 'json':
             with open(filename, 'w') as file:
-                json.dump({'gastos': gastos.to_dict(orient='records'), 'ingresos': ingresos.to_dict(orient='records')}, file)
+                json.dump(data.to_dict(orient='records'), file)
         elif format == 'xml':
             root = ET.Element("Data")
-            if self.chkGastos.GetValue():
-                gastos_xml = ET.SubElement(root, "Gastos")
-                for _, row in gastos.iterrows():
-                    gasto_element = ET.SubElement(gastos_xml, "Gasto")
-                    for col, val in row.items():
-                        ET.SubElement(gasto_element, col).text = str(val)
-            if self.chkIngresos.GetValue():
-                ingresos_xml = ET.SubElement(root, "Ingresos")
-                for _, row in ingresos.iterrows():
-                    ingreso_element = ET.SubElement(ingresos_xml, "Ingreso")
-                    for col, val in row.items():
-                        ET.SubElement(ingreso_element, col).text = str(val)
+            data_xml = ET.SubElement(root, export_type.title())
+            for _, row in data.iterrows():
+                item_element = ET.SubElement(data_xml, export_type[:-1])  # Singular of the type
+                for col, val in row.items():
+                    ET.SubElement(item_element, col).text = str(val)
             tree = ET.ElementTree(root)
             tree.write(filename)
 
 def main():
-    app = wx.App()
-    MainFrame(None, title='Finanzas Personales')
+    app = wx.App(False)
+    frame = MainFrame(None, title='Finanzas Personales')
+    frame.Show()
     app.MainLoop()
 
+if __name__ == '__main__':
+    main()
 class ImportDialog(wx.Dialog):
     def __init__(self, parent):
         super(ImportDialog, self).__init__(parent, title='Importar Datos', size=(400, 300))
