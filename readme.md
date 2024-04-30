@@ -1,4 +1,4 @@
-﻿# finanzas personales
+﻿# finanzas personales versión 0.5
 
 Este es un programa muy simple que te ayudará a llevar una gestión de tus gastos constantes así como tus ingresos para dar un paso más a la libertad financiera.
 
