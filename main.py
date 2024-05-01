@@ -86,6 +86,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onEditIngresos, editIngresosItem)
         menubar.Append(ingresosMenu, '&Ingresos')
 
+
         self.SetMenuBar(menubar)
         self.Show(True)
     def initUpdater(self):
@@ -271,8 +272,15 @@ class EditIngresosDialog(wx.Dialog):
         closeButton.Bind(wx.EVT_BUTTON, lambda evt: self.Destroy())
         self.layout.Add(closeButton, flag=wx.LEFT | wx.BOTTOM, border=10)
 
-        self.panel.SetSizer(self.layout)  # Asocia el sizer al panel
 
+        self.panel.SetSizer(self.layout)  # Asocia el sizer al panel
+        self.Bind(wx.EVT_KEY_DOWN, self.onKeyPress)
+    def onKeyPress(self, event):
+        keycode = event.GetKeyCode()
+        if keycode == wx.WXK_ESCAPE:
+            self.Destroy()
+        else:
+            event.Skip()  # Muy importante, asegura que otros eventos de teclado no se bloqueen
     def loadIngresos(self):
         """
         Carga los ingresos del archivo CSV y los muestra en el ListBox.
