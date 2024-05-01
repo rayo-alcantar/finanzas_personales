@@ -532,9 +532,6 @@ def main():
     frame = MainFrame(None, title='Finanzas Personales')
     frame.Show()
     app.MainLoop()
-
-if __name__ == '__main__':
-    main()
 class ImportDialog(wx.Dialog):
     def __init__(self, parent):
         super(ImportDialog, self).__init__(parent, title='Importar Datos', size=(400, 300))

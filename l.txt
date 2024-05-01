@@ -1,0 +1,137 @@
+commit dde11364519268b915a6316d1fccb67cc0c1441d
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Wed May 1 11:39:45 2024 -0600
+
+    no volver a este commit
+
+commit 4004dff07878b2bfd5cc96560298ceec824679cc
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 19:02:26 2024 -0600
+
+    Se edita el readme
+
+commit e1ac75508682f6e53a89dc44b462c35febfd6916
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 19:01:43 2024 -0600
+
+    Se arregla la función para actualizar
+
+commit 2e49531b50f33797816c80d75be9a66a489f26a4
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 17:14:34 2024 -0600
+
+    Cambios porque tonto
+
+commit 57dfbe95b2db78d40315de058b9c719f9ec6b369
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 17:07:55 2024 -0600
+
+    Se asegura el cierre total
+
+commit 481effdb0fe371b8e3b4a6332602ac3ad32ce2a2
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 16:58:55 2024 -0600
+
+    Se corrige para que sea más robusto el actaulizador
+
+commit c25bed060bbda835889bc971ada9c6de2dce2d6d
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 16:51:40 2024 -0600
+
+    Se arregla la versión
+
+commit 35ac5c87784fa8aa810277c3f601f41c489599e0
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 16:30:32 2024 -0600
+
+    Se añadió un actualizador básico
+
+commit 02edc8ae9490a49064e651d34043e08df999d666
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 14:27:19 2024 -0600
+
+    Se corrige la interfaz para exportar y ahcerla mas amena al usuario
+
+commit e1fcbc29f6b5c74e20aec70932f6a6debf3b3846
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 14:18:56 2024 -0600
+
+    Se añaden algunas correciones mínimas a la interfaz en la clase para importar datos.
+
+commit f9968cd1c9893d5be99acc8b18de2b4907e484e7
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 14:11:15 2024 -0600
+
+    se arregla algo con el editor de ingresos
+
+commit e9cde5fc3c13590cfb266532c6cd549496d178a8
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 14:04:48 2024 -0600
+
+    Se añade para impportar, por hacer correciones aún
+
+commit 54a3c09a6c8f9cd91d0f50c0739ff4ce3d5ef6b2
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 12:15:57 2024 -0600
+
+    Corregí un puto error tonto
+
+commit 4102bd5bfc3b2ddc13ac63e193371c1d20dc54d4
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 11:24:20 2024 -0600
+
+    Se prepara para no subir lo del exe
+
+commit c07d9321d8ea9b579f218b0c434bd69ace2f92f1
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 11:05:16 2024 -0600
+
+    Se corrige la funcioalidad para exportar
+
+commit dc31a7f5d96951cf8df81a804e18b205023c4c18
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 10:51:17 2024 -0600
+
+    Se añade funcioalidad para exportar los csv a varios formatos: jscon, xml y excel. en pruebas
+
+commit 3c9b071563d2054e731c761fc8ec2abf7f19e45e
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Tue Apr 30 08:10:13 2024 -0600
+
+    Se añade opción para ver el balance en un gráfico y se crea su clase de gestión correspondiente
+
+commit 0f5fd41d56bd2539a34eb53914887182908c9a92
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Mon Apr 29 21:06:40 2024 -0600
+
+    Se añaden comentarios para el programcete de mierda que quedó el código dios como me ahce falta clean code
+
+commit 33028d6acc072303d418650f97769e45fc467c6b
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Mon Apr 29 20:56:03 2024 -0600
+
+    se añade la opción para ver el valance
+
+commit f82e1f1d73b39c229465654c6f777d60c5cd7d7a
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Mon Apr 29 20:20:11 2024 -0600
+
+    Se añaden las secciones para los ingresos
+
+commit a0e4beec816c5459896959798fc3f45711c08c4c
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Mon Apr 29 16:42:48 2024 -0600
+
+    Se añade la funcionalidad para editar los gastos del csv
+
+commit 4f90ef8094e5968e2597abdfe2946b7594cb650b
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Mon Apr 29 16:30:41 2024 -0600
+
+    Se crean las funciones para sumar del archivo csv
+
+commit 5078971f9de576822a73646bdce8183bdde3b0b5
+Author: ángel Alcantar <rayoalcantar@gmail.com>
+Date:   Mon Apr 29 16:20:46 2024 -0600
+
+    se comienza en trabajar los archivos prinicpales.
