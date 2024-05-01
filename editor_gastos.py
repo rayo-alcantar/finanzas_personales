@@ -31,10 +31,22 @@ class EditorGastos(wx.Dialog):
 
         panel.SetSizer(vbox)
 
+        # Asegurarse de que el diálogo puede capturar el foco para eventos de teclado
+        self.SetFocus()
+        # Usar EVT_CHAR_HOOK para capturar eventos de teclado a nivel global en el diálogo
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyPress)
+
         self.Bind(wx.EVT_BUTTON, self.onEditName, self.editNameBtn)
         self.Bind(wx.EVT_BUTTON, self.onEditAmount, self.editAmountBtn)
         self.Bind(wx.EVT_BUTTON, self.onDelete, self.deleteBtn)
         self.Bind(wx.EVT_BUTTON, self.onClose, self.closeBtn)
+
+    def onKeyPress(self, event):
+        keycode = event.GetKeyCode()
+        if keycode == wx.WXK_ESCAPE:
+            self.Destroy()
+        else:
+            event.Skip()  # Permite que otros eventos se procesen
 
     def cargarGastos(self):
         """
