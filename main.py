@@ -274,13 +274,17 @@ class EditIngresosDialog(wx.Dialog):
 
 
         self.panel.SetSizer(self.layout)  # Asocia el sizer al panel
-        self.Bind(wx.EVT_KEY_DOWN, self.onKeyPress)
+            # Asegurarse de que el diálogo puede capturar el foco para eventos de teclado
+        self.SetFocus()
+            # Usar EVT_CHAR_HOOK para capturar eventos de teclado a nivel global en el diálogo
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKeyPress)
     def onKeyPress(self, event):
         keycode = event.GetKeyCode()
         if keycode == wx.WXK_ESCAPE:
             self.Destroy()
         else:
-            event.Skip()  # Muy importante, asegura que otros eventos de teclado no se bloqueen
+            event.Skip()  # Permite que otros eventos se procesen
+
     def loadIngresos(self):
         """
         Carga los ingresos del archivo CSV y los muestra en el ListBox.
