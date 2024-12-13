@@ -35,6 +35,9 @@ class MainFrame(wx.Frame):
 		self.initUI()
 		self.initUpdater()
 		self.Bind(wx.EVT_CLOSE, self.onClose)
+		
+		# Aquí forzamos a que la ventana se abra maximizada en pantalla completa
+		self.Maximize(True)
 
 	def onClose(self, event):
 		# Destruye todos los diálogos abiertos o finaliza procesos
@@ -104,6 +107,7 @@ class MainFrame(wx.Frame):
 		self.updater.prompt_update_if_needed(self.version)
 
 	#métodos para manejar los gastos
+
 	def onAddGasto(self, event):
 		dialog = AddGastoDialog(self)
 		dialog.ShowModal()
