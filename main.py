@@ -158,7 +158,8 @@ class MainFrame(wx.Frame):
 		total_gastos = self.finanza.sumar_gastos()
 
 		if isinstance(total_ingresos, float) and isinstance(total_gastos, float):
-			dlg = BalanceGraphDialog(self, total_ingresos, total_gastos)
+			# Corregimos el constructor de la clase BalanceGraphDialog a __init__ y llamamos con los argumentos correctos
+			dlg = BalanceGraphDialog(self, ingresos=total_ingresos, gastos=total_gastos)
 			dlg.ShowModal()
 			dlg.Destroy()
 		else:
@@ -314,8 +315,6 @@ class EditSingleIngresoDialog(wx.Dialog):
 			try:
 				updated_amount = float(updated_amount)
 				
-				# Aquí se asume que la clase Finanza tiene el método actualizar_ingreso.
-				# self.GetParent().GetParent() debe retornar el frame principal, que tiene self.finanza.
 				self.GetParent().GetParent().finanza.actualizar_ingreso(self.index, updated_name, updated_amount)
 
 				wx.MessageBox('Ingreso actualizado correctamente', 'Info', wx.OK | wx.ICON_INFORMATION)
@@ -375,19 +374,16 @@ class AddIngresoDialog(wx.Dialog):
 	def onCancel(self, event):
 		self.Close()
 
-#gg as FigureCanvas
-
 class BalanceGraphDialog(wx.Dialog):
 	def __init__(self, parent, ingresos, gastos):
-		# Habilitar el redimensionado para mayor flexibilidad
+		# Ajustar el init correcto para que wx.Dialog se inicialice bien con los parámetros correctos
 		super(BalanceGraphDialog, self).__init__(
 			parent, 
 			title='Gráfico de Ingresos, Gastos y Balance', 
-			style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
-			size=(600, 400)
+			style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX,
+			size=(800, 600)
 		)
 
-		# Usar un estilo por defecto de Matplotlib (ej. 'ggplot')
 		mplstyle.use('ggplot')
 
 		self.ingresos = ingresos
@@ -396,7 +392,6 @@ class BalanceGraphDialog(wx.Dialog):
 
 		self.panel = wx.Panel(self)
 
-		# Creamos la figura más grande y con DPI alto para mejor nitidez
 		self.figure = Figure(figsize=(8, 6), dpi=100)
 		self.canvas = FigureCanvas(self.panel, -1, self.figure)
 		self.axes = self.figure.add_subplot(111)
@@ -409,9 +404,6 @@ class BalanceGraphDialog(wx.Dialog):
 
 		self.Bind(wx.EVT_SIZE, self.on_resize)
 		self.Layout()
-
-		# Forzar la ventana a mostrarse en pantalla completa
-		self.ShowFullScreen(True)
 
 	def draw_balance_graph(self):
 		self.axes.clear()
