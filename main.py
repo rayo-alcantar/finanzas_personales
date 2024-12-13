@@ -429,33 +429,51 @@ class AddIngresoDialog(wx.Dialog):
 
 #Clase para dibujar el gráfico
 class BalanceGraphDialog(wx.Dialog):
-    def __init__(self, parent, balance):
-        super(BalanceGraphDialog, self).__init__(parent, title='Gráfico de Balance', size=(400, 300))
-        
-        self.panel = wx.Panel(self)
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self.panel, -1, self.figure)
-        self.axes = self.figure.add_subplot(111)
+	def __init__(self, parent, balance):
+		# Añadimos banderas de estilo para permitir redimensionar
+		super(BalanceGraphDialog, self).__init__(
+			parent, 
+			title='Gráfico de Balance', 
+			style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
+			size=(600, 400)  # Ajusta el tamaño inicial a algo más grande
+		)
 
-        self.draw_balance_graph(balance)
-        
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.EXPAND)
-        self.panel.SetSizer(sizer)
-        self.Layout()
+		self.panel = wx.Panel(self)
 
-    def draw_balance_graph(self, balance):
-        """
-        Dibuja el gráfico de balance, coloreado según el valor.
-        """
-        colors = 'red' if balance < 0 else 'green'
-        self.axes.clear()
-        self.axes.bar(['Balance'], [balance], color=colors)
-        self.axes.set_title('Balance Financiero')
-        self.axes.set_ylabel('Cantidad ($)')
-        self.axes.set_ylim(min(balance - 10, 0), max(balance + 10, 0))  # Ajustar para mostrar la barra claramente
-        self.canvas.draw()
+		# Ajustamos el tamaño de la figura. figsize se expresa en pulgadas, 
+		# por ejemplo 8x6 pulgadas, con DPI ajustas la densidad de pixeles
+		self.figure = Figure(figsize=(8, 6), dpi=100)
+		self.canvas = FigureCanvas(self.panel, -1, self.figure)
+		self.axes = self.figure.add_subplot(111)
 
+		self.draw_balance_graph(balance)
+
+		sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer.Add(self.canvas, 1, wx.EXPAND | wx.ALL, 5)
+		self.panel.SetSizer(sizer)
+
+		# Habilita el ajuste dinámico al cambiar el tamaño de la ventana
+		self.Bind(wx.EVT_SIZE, self.on_resize)
+		
+		self.Layout()
+
+	def draw_balance_graph(self, balance):
+		"""
+		Dibuja el gráfico de balance, coloreado según el valor.
+		"""
+		colors = 'red' if balance < 0 else 'green'
+		self.axes.clear()
+		self.axes.bar(['Balance'], [balance], color=colors)
+		self.axes.set_title('Balance Financiero')
+		self.axes.set_ylabel('Cantidad ($)')
+		# Ajustar límites para mostrar la barra con holgura
+		self.axes.set_ylim(min(balance - 10, 0), max(balance + 10, 0))
+		self.canvas.draw()
+
+	def on_resize(self, event):
+		# Ajustar el lienzo al tamaño del panel
+		self.Layout()
+		event.Skip()
 
 #clase para exportar datos.
 class ExportDialog(wx.Dialog):
