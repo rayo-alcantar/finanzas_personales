@@ -18,9 +18,20 @@ from updater import GithubUpdater
 #clase donde manejamos la gui.
 class MainFrame(wx.Frame):
 	def __init__(self, parent, title):
-		super(MainFrame, self).__init__(parent, title=title, size=(800, 600))
+		# Añadimos los estilos para maximizar y minimizar la ventana
+		super(MainFrame, self).__init__(
+			parent, 
+			title=title, 
+			size=(800, 600),
+			style=wx.DEFAULT_FRAME_STYLE | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX
+		)
 		self.version = "0.6"
 		self.finanza = Finanza()  # Crear una instancia de Finanza aquí
+
+		# Ajustar el diseño visual (ej. fondo verde claro para aspecto financiero)
+		self.SetBackgroundColour("#E6FFCC")  # Verde claro
+		self.SetForegroundColour("#033500")  # Verde oscuro
+
 		self.initUI()
 		self.initUpdater()
 		self.Bind(wx.EVT_CLOSE, self.onClose)
@@ -273,7 +284,7 @@ class EditSingleIngresoDialog(wx.Dialog):
 		nameLbl = wx.StaticText(panel, label="Nombre del Ingreso:")
 		self.nameTxt = wx.TextCtrl(panel, value=ingreso['Nombre del Ingreso'])
 		amountLbl = wx.StaticText(panel, label="Monto del Ingreso:")
-		self.amountTxt = wx.TextCtrl(panel, value=ingreso['Cantidad'])
+		self.amountTxt = wx.TextCtrl(panel, value=str(ingreso['Cantidad']))
 
 		hboxButtons = wx.BoxSizer(wx.HORIZONTAL)
 		saveButton = wx.Button(panel, label='Guardar Cambios')
@@ -293,12 +304,16 @@ class EditSingleIngresoDialog(wx.Dialog):
 		cancelButton.Bind(wx.EVT_BUTTON, self.onCancel)
 
 	def onSave(self, event):
-		updated_name = self.nameTxt.GetValue()
-		updated_amount = self.amountTxt.GetValue()
+		updated_name = self.nameTxt.GetValue().strip()
+		updated_amount = self.amountTxt.GetValue().strip()
 		if updated_name and updated_amount:
 			try:
 				updated_amount = float(updated_amount)
+				
+				# Aquí se asume que la clase Finanza tiene el método actualizar_ingreso.
+				# self.GetParent().GetParent() debe retornar el frame principal, que tiene self.finanza.
 				self.GetParent().GetParent().finanza.actualizar_ingreso(self.index, updated_name, updated_amount)
+
 				wx.MessageBox('Ingreso actualizado correctamente', 'Info', wx.OK | wx.ICON_INFORMATION)
 				self.Close()
 			except ValueError:
@@ -308,6 +323,7 @@ class EditSingleIngresoDialog(wx.Dialog):
 
 	def onCancel(self, event):
 		self.Close()
+
 
 class AddIngresoDialog(wx.Dialog):
 	def __init__(self, parent):
