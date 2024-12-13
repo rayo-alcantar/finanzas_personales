@@ -28,9 +28,13 @@ class MainFrame(wx.Frame):
 		self.version = "0.6"
 		self.finanza = Finanza()  # Crear una instancia de Finanza aquí
 
-		# Ajustar el diseño visual (ej. fondo verde claro para aspecto financiero)
-		self.SetBackgroundColour("#E6FFCC")  # Verde claro
-		self.SetForegroundColour("#033500")  # Verde oscuro
+		# Ajustar el diseño visual
+		# En lugar de usar un color, usaremos una imagen de fondo
+		self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
+		
+		# Suponemos que el archivo "fondo.jpg" está en la raíz del proyecto junto al main.py
+		img_path = os.path.join(os.path.dirname(__file__), "fondo.jpg")
+		self.bg_bitmap = wx.Bitmap(img_path)
 
 		self.initUI()
 		self.initUpdater()
@@ -38,12 +42,23 @@ class MainFrame(wx.Frame):
 		
 		# Aquí forzamos a que la ventana se abra maximizada en pantalla completa
 		self.Maximize(True)
+		
+		# Vinculamos el evento de pintura para dibujar el fondo
+		self.Bind(wx.EVT_PAINT, self.on_paint)
 
 	def onClose(self, event):
 		# Destruye todos los diálogos abiertos o finaliza procesos
 		self.Destroy()
 		wx.Exit
 		exit(0)
+
+	def on_paint(self, event):
+		dc = wx.AutoBufferedPaintDC(self)
+		dc.Clear()
+		w, h = self.GetClientSize()
+		# Redimensionar la imagen al tamaño actual de la ventana
+		img = self.bg_bitmap.ConvertToImage().Scale(w, h, wx.IMAGE_QUALITY_HIGH)
+		dc.DrawBitmap(wx.Bitmap(img), 0, 0)
 
 	def initUI(self):
 		self.CreateStatusBar()
