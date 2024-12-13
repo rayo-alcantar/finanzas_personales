@@ -25,7 +25,7 @@ class MainFrame(wx.Frame):
 			size=(800, 600),
 			style=wx.DEFAULT_FRAME_STYLE | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX
 		)
-		self.version = "0.6"
+		self.version = "1.0"
 		self.finanza = Finanza()  # Crear una instancia de Finanza aquí
 
 		# Ajustar el diseño visual
