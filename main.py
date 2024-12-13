@@ -429,49 +429,77 @@ class AddIngresoDialog(wx.Dialog):
 
 #Clase para dibujar el gráfico
 class BalanceGraphDialog(wx.Dialog):
-	def __init__(self, parent, balance):
-		# Añadimos banderas de estilo para permitir redimensionar
+	def __init__(self, parent, ingresos, gastos):
+		# Habilitar el redimensionado para mayor flexibilidad
 		super(BalanceGraphDialog, self).__init__(
 			parent, 
-			title='Gráfico de Balance', 
+			title='Gráfico de Ingresos, Gastos y Balance', 
 			style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
-			size=(600, 400)  # Ajusta el tamaño inicial a algo más grande
+			size=(600, 400)
 		)
+
+		# Aplicamos un estilo más agradable
+		mplstyle.use('seaborn-darkgrid')
+
+		self.ingresos = ingresos
+		self.gastos = gastos
+		self.balance = ingresos - gastos
 
 		self.panel = wx.Panel(self)
 
-		# Ajustamos el tamaño de la figura. figsize se expresa en pulgadas, 
-		# por ejemplo 8x6 pulgadas, con DPI ajustas la densidad de pixeles
+		# Creamos la figura más grande y con DPI alto para mejor nitidez
 		self.figure = Figure(figsize=(8, 6), dpi=100)
 		self.canvas = FigureCanvas(self.panel, -1, self.figure)
 		self.axes = self.figure.add_subplot(111)
 
-		self.draw_balance_graph(balance)
+		self.draw_balance_graph()
 
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		sizer.Add(self.canvas, 1, wx.EXPAND | wx.ALL, 5)
 		self.panel.SetSizer(sizer)
 
-		# Habilita el ajuste dinámico al cambiar el tamaño de la ventana
 		self.Bind(wx.EVT_SIZE, self.on_resize)
-		
 		self.Layout()
 
-	def draw_balance_graph(self, balance):
+	def draw_balance_graph(self):
 		"""
-		Dibuja el gráfico de balance, coloreado según el valor.
+		Dibuja un gráfico de barras comparando Ingresos vs Gastos, 
+		y resalta el balance total.
 		"""
-		colors = 'red' if balance < 0 else 'green'
 		self.axes.clear()
-		self.axes.bar(['Balance'], [balance], color=colors)
-		self.axes.set_title('Balance Financiero')
+
+		# Datos para las barras
+		categorias = ['Gastos', 'Ingresos']
+		valores = [self.gastos, self.ingresos]
+
+		# Colores amigables para la vista
+		colores = ['red', 'green']
+
+		# Crear las barras
+		self.axes.bar(categorias, valores, color=colores, width=0.4)
+
+		# Añadir título y etiquetas
+		self.axes.set_title('Comparativa Ingresos vs Gastos')
 		self.axes.set_ylabel('Cantidad ($)')
-		# Ajustar límites para mostrar la barra con holgura
-		self.axes.set_ylim(min(balance - 10, 0), max(balance + 10, 0))
+		self.axes.set_ylim(0, max(valores) + (0.1 * max(valores)))
+
+		# Añadimos el balance como texto adicional en la gráfica
+		balance_text = f"Balance: {self.balance}"
+		# Colocamos el texto sobre la gráfica
+		self.axes.text(
+			0.5, 
+			max(valores) * 1.05, 
+			balance_text, 
+			ha='center', 
+			va='bottom', 
+			fontsize=12, 
+			fontweight='bold'
+		)
+
+		# Dibujar la gráfica
 		self.canvas.draw()
 
 	def on_resize(self, event):
-		# Ajustar el lienzo al tamaño del panel
 		self.Layout()
 		event.Skip()
 
