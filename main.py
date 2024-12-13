@@ -375,6 +375,8 @@ class AddIngresoDialog(wx.Dialog):
 	def onCancel(self, event):
 		self.Close()
 
+#gg as FigureCanvas
+
 class BalanceGraphDialog(wx.Dialog):
 	def __init__(self, parent, ingresos, gastos):
 		# Habilitar el redimensionado para mayor flexibilidad
@@ -407,6 +409,9 @@ class BalanceGraphDialog(wx.Dialog):
 
 		self.Bind(wx.EVT_SIZE, self.on_resize)
 		self.Layout()
+
+		# Forzar la ventana a mostrarse en pantalla completa
+		self.ShowFullScreen(True)
 
 	def draw_balance_graph(self):
 		self.axes.clear()
